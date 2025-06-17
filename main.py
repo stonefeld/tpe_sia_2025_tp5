@@ -1,5 +1,6 @@
 import numpy as np
-from src.plots import plot_letter, plot_all_letters
+from src.plots import plot_letter, plot_all_letters, plot_latent_space
+from src.autoencoders import Autoencoder
 
 font_data = [
     [0x04, 0x04, 0x02, 0x00, 0x00, 0x00, 0x00],  # 0x60, `
@@ -58,6 +59,18 @@ def main():
 
     # Uncomment to plot all letters
     plot_all_letters(decoded_data)
+
+    # Create the autoencoder
+    autoencoder = Autoencoder(input_dim=35, hidden_dim=8, latent_dim=2, learning_rate=0.01)
+
+    # Train the model
+    autoencoder.train(decoded_data, epochs=1000, batch_size=32)
+
+    # Get latent representations
+    latent_representations = autoencoder.get_latent_representations(decoded_data)
+
+    # Plot the latent space
+    plot_latent_space(latent_representations, decoded_data)
 
 
 if __name__ == "__main__":
