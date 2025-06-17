@@ -1,0 +1,12 @@
+[project]
+name = "tpe-sia-2025-tp5"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12.9"
+dependencies = [
+    "jupyter>=1.1.1",
+    "matplotlib>=3.10.3",
+    "numpy>=2.3.0",
+    "pyside6>=6.9.1",
+]
