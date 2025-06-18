@@ -197,5 +197,6 @@ class AutoencoderMLP:
                 print(f"Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / (n_samples / batch_size):.10f}")
 
     def get_latent_representations(self, x):
+        x = np.array([sample.flatten() for sample in x])
         activations = self.forward(x)
-        return activations[len(activations) // 2]
+        return activations[len(self.layers) // 2]

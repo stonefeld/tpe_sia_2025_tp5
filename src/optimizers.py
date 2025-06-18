@@ -21,7 +21,7 @@ class SGD(Optimizer):
         pass
 
     def update(self, i, weights, weight_gradients):
-        weights += self.learning_rate * weight_gradients
+        np.add(weights, self.learning_rate * weight_gradients, out=weights)
 
 
 class Momentum(Optimizer):
@@ -31,11 +31,12 @@ class Momentum(Optimizer):
         self.velocity = None
 
     def initialize(self, weights):
-        self.velocity = [np.zeros_like(w, dtype=np.float64) for w in weights]
+        self.velocity = [np.zeros_like(w, dtype=np.float32) for w in weights]
 
     def update(self, i, weights, weight_gradients):
-        self.velocity[i] = self.momentum * self.velocity[i] + self.learning_rate * weight_gradients
-        weights += self.velocity[i]
+        np.multiply(self.velocity[i], self.momentum, out=self.velocity[i])
+        np.add(self.velocity[i], self.learning_rate * weight_gradients, out=self.velocity[i])
+        np.add(weights, self.velocity[i], out=weights)
 
 
 class Adam(Optimizer):
@@ -57,13 +58,18 @@ class Adam(Optimizer):
             self.simple = True
 
     def initialize(self, weights):
-        self.m = [np.zeros_like(w, dtype=np.float64) for w in weights]
-        self.v = [np.zeros_like(w, dtype=np.float64) for w in weights]
+        self.m = [np.zeros_like(w, dtype=np.float32) for w in weights]
+        self.v = [np.zeros_like(w, dtype=np.float32) for w in weights]
 
     def update(self, i, weights, weight_gradients):
         self.t += 1
-        self.m[i] = self.beta1 * self.m[i] + (1 - self.beta1) * weight_gradients
-        self.v[i] = self.beta2 * self.v[i] + (1 - self.beta2) * weight_gradients**2
+
+        np.multiply(self.m[i], self.beta1, out=self.m[i])
+        np.add(self.m[i], (1 - self.beta1) * weight_gradients, out=self.m[i])
+
+        np.multiply(self.v[i], self.beta2, out=self.v[i])
+        np.add(self.v[i], (1 - self.beta2) * np.square(weight_gradients), out=self.v[i])
+
         m_hat = self.m[i] / (1 - self.beta1**self.t)
         v_hat = self.v[i] / (1 - self.beta2**self.t)
         update = self.learning_rate * m_hat / (np.sqrt(v_hat) + self.epsilon)
@@ -71,4 +77,4 @@ class Adam(Optimizer):
         if self.simple:
             update = np.clip(update, -0.1, 0.1)
 
-        weights += update
+        np.add(weights, update, out=weights)
