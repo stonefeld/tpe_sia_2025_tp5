@@ -1,8 +1,10 @@
 import numpy as np
 from sklearn.decomposition import PCA
 
-from src.autoencoders import Autoencoder
-from src.plots import plot_all_letters, plot_latent_space, plot_letter
+from src.activators import tanh, tanh_prime, sigmoid, sigmoid_prime
+from src.autoencoders import AutoencoderMLP as Autoencoder
+from src.plots import plot_all_letters, plot_latent_space
+from src.optimizers import Adam
 
 font_data = [
     [0x04, 0x04, 0x02, 0x00, 0x00, 0x00, 0x00],  # 0x60, `
@@ -68,10 +70,13 @@ def main():
     plot_all_letters(decoded_data)
 
     # Create the autoencoder
-    autoencoder = Autoencoder(input_dim=35, hidden_dim=8, latent_dim=2, learning_rate=0.005)
+    # layers = [35, 8, 2, 8, 35]
+    layers = [35, 18, 6, 2, 6, 18, 35]
+    adam = Adam(learning_rate=0.0024, layers=layers)
+    autoencoder = Autoencoder(layers=layers, tita=sigmoid, tita_prime=sigmoid_prime, optimizer=adam)
 
     # Train the model
-    autoencoder.train(decoded_data, epochs=5000**2, batch_size=32, max_pixel_error=3)
+    autoencoder.train(decoded_data, epochs=100000, batch_size=32, max_pixel_error=1)
 
     # Get latent representations
     latent_representations = autoencoder.get_latent_representations(decoded_data)
