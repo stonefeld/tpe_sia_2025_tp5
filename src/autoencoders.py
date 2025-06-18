@@ -2,11 +2,7 @@ import numpy as np
 
 from src.activators import sigmoid, sigmoid_prime
 from src.optimizers import SGD
-
-
-def pixel_error(original, reconstructed, threshold=0.5):
-    reconstructed_bin = (reconstructed > threshold).astype(int)
-    return np.sum(np.abs(original - reconstructed_bin), axis=1)  # array of errors per sample
+from src.utils import pixel_error
 
 
 class Autoencoder:
