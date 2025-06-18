@@ -1,6 +1,8 @@
 import numpy as np
-from src.plots import plot_letter, plot_all_letters, plot_latent_space
+from sklearn.decomposition import PCA
+
 from src.autoencoders import Autoencoder
+from src.plots import plot_all_letters, plot_latent_space, plot_letter
 
 font_data = [
     [0x04, 0x04, 0x02, 0x00, 0x00, 0x00, 0x00],  # 0x60, `
@@ -51,6 +53,11 @@ def decode_font(font_data):
     return np.array(images, dtype=np.float32)
 
 
+def pca_2d(latent_representations):
+    pca = PCA(n_components=2)
+    return pca.fit_transform(latent_representations)
+
+
 def main():
     decoded_data = decode_font(font_data)
 
@@ -61,16 +68,17 @@ def main():
     plot_all_letters(decoded_data)
 
     # Create the autoencoder
-    autoencoder = Autoencoder(input_dim=35, hidden_dim=8, latent_dim=2, learning_rate=0.01)
+    autoencoder = Autoencoder(input_dim=35, hidden_dim=8, latent_dim=2, learning_rate=0.005)
 
     # Train the model
-    autoencoder.train(decoded_data, epochs=1000, batch_size=32)
+    autoencoder.train(decoded_data, epochs=5000**2, batch_size=32, max_pixel_error=3)
 
     # Get latent representations
     latent_representations = autoencoder.get_latent_representations(decoded_data)
 
     # Plot the latent space
-    plot_latent_space(latent_representations, decoded_data)
+    latent_2d = pca_2d(latent_representations)
+    plot_latent_space(latent_2d, decoded_data)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,11 @@ def sigmoid_derivative(x):
     return x * (1 - x)
 
 
+def pixel_error(original, reconstructed, threshold=0.5):
+    reconstructed_bin = (reconstructed > threshold).astype(int)
+    return np.sum(np.abs(original - reconstructed_bin), axis=1)  # array of errors per sample
+
+
 class Autoencoder:
     def __init__(self, input_dim=35, hidden_dim=8, latent_dim=2, learning_rate=0.01):
         # Initialize weights with Xavier/Glorot initialization
@@ -62,34 +67,36 @@ class Autoencoder:
         self.W1 += self.learning_rate * np.dot(X.T, d_hidden1)
         self.b1 += self.learning_rate * np.sum(d_hidden1, axis=0, keepdims=True)
 
-    def train(self, X, epochs=1000, batch_size=32):
+    def train(self, X, epochs=1000, batch_size=32, max_pixel_error=None):
         n_samples = X.shape[0]
         for epoch in range(epochs):
-            # Shuffle data
             indices = np.random.permutation(n_samples)
             total_loss = 0
 
-            # Mini-batch training
             for i in range(0, n_samples, batch_size):
                 left = i
-                right = i + batch_size
+                right = left + batch_size
                 batch_indices = indices[left:right]
                 batch_X = X[batch_indices]
-
-                # Forward pass
                 output, _ = self.forward(batch_X)
-
-                # Calculate loss
                 loss = np.mean(np.square(batch_X - output))
                 total_loss += loss
-
-                # Backward pass
                 self.backward(batch_X, output)
 
-            # Print progress
-            if (epoch + 1) % 100 == 0:
-                avg_loss = total_loss / (n_samples / batch_size)
-                print(f"Epoch [{epoch + 1}/{epochs}], Loss: {avg_loss:.4f}")
+            # Early stopping based on pixel error
+            if max_pixel_error is not None:
+                reconstructed, _ = self.forward(X)
+                errors = pixel_error(X, reconstructed)
+                max_err = np.max(errors)
+                if (epoch + 1) % 100 == 0 or max_err <= max_pixel_error:
+                    print(f"Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / (n_samples / batch_size):.10f}, Max Pixel Error: {max_err}")
+
+                if max_err <= max_pixel_error:
+                    print(f"Training stopped: max pixel error {max_err} <= {max_pixel_error}")
+                    break
+
+            elif (epoch + 1) % 100 == 0:
+                print(f"Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / (n_samples / batch_size):.10f}")
 
     def get_latent_representations(self, X):
         _, latent = self.forward(X)
