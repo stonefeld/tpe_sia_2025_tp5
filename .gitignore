@@ -12,6 +12,7 @@ wheels/
 
 # Misc
 *.vim
+results/
 
 # latex
 *.aux

@@ -65,12 +65,12 @@ def main():
     decoded_data = decode_font(font_data)
     plot_all_letters(decoded_data)
 
-    # layers = [35, 18, 6, 2, 6, 18, 35]
-    layers = [35, 10, 2, 10, 35]
-    adam = Adam(learning_rate=0.0035, layers=layers)
+    layers = [35, 18, 6, 2, 6, 18, 35]
+    # layers = [35, 10, 2, 10, 35]
+    adam = Adam(learning_rate=0.001, layers=layers)
     autoencoder = Autoencoder(layers=layers, tita=sigmoid, tita_prime=sigmoid_prime, optimizer=adam)
 
-    autoencoder.train(decoded_data, epochs=100000, batch_size=32, max_pixel_error=1)
+    autoencoder.train(decoded_data, epochs=100000, batch_size=8, max_pixel_error=1)
     latent_representations = autoencoder.get_latent_representations(decoded_data)
 
     latent_2d = pca_2d(latent_representations)
