@@ -1,8 +1,8 @@
 import numpy as np
 
-from src.activators import sigmoid, sigmoid_prime
-from src.optimizers import SGD
-from src.utils import pixel_error
+from activators import sigmoid, sigmoid_prime
+from optimizers import SGD
+from utils import pixel_error
 
 
 class Autoencoder:
@@ -40,8 +40,14 @@ class Autoencoder:
     def backward(self, x, activations):
         deltas = [None] * len(self.weights)
         output = activations[-1]
-        error = np.array(x) - output
-
+        
+        # Binary Cross Entropy derivative with respect to output
+        # BCE = -y*log(y_hat) - (1-y)*log(1-y_hat)
+        # d(BCE)/d(y_hat) = -y/y_hat + (1-y)/(1-y_hat)
+        epsilon = 1e-15  # Para evitar divisiones por cero
+        output = np.clip(output, epsilon, 1 - epsilon)
+        error = -(x / output) + (1 - x) / (1 - output)
+        
         # Delta de la capa de salida
         deltas[-1] = error * np.array([self.tita_prime(o) for o in output])
 
@@ -85,7 +91,11 @@ class Autoencoder:
                 batch_x = x[batch_idx]
                 activations = self.forward(batch_x)
                 self.backward(batch_x, activations)
-                total_loss += np.mean(np.square(batch_x - activations[-1]))
+                
+                # Calcular Binary Cross Entropy Loss
+                output = np.clip(activations[-1], 1e-15, 1 - 1e-15)
+                batch_loss = -np.mean(batch_x * np.log(output) + (1 - batch_x) * np.log(1 - output))
+                total_loss += batch_loss
 
             # Corte temprano basado en error de píxeles
             if max_pixel_error is not None:
