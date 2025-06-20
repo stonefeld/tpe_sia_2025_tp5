@@ -34,8 +34,8 @@ class Autoencoder:
 
         for weight in self.weights:
             bias = np.ones((input.shape[0], 1))  # bias for each sample
-            input = np.concatenate((bias, input), axis=1)  # bias
-            h = np.dot(input, weight.T)  # Changed from np.dot(weight, input)
+            input_with_bias = np.concatenate((bias, input), axis=1)  # bias
+            h = np.dot(input_with_bias, weight.T)  # input_with_bias: (batch_size, input_size+1), weight.T: (input_size+1, output_size)
             output = np.array([self.tita(h_i) for h_i in h])
             activations.append(output)
             input = output
