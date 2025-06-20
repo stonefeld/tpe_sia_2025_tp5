@@ -1,10 +1,16 @@
 import numpy as np
 import re
 import matplotlib.pyplot as plt
-from autoencoders import Autoencoder
-from activators import sigmoid, sigmoid_prime
-from optimizers import Adam
-from utils import pixel_error
+import sys
+import os
+
+# Agregar el directorio padre al path para importaciones
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from src.autoencoders import Autoencoder
+from src.activators import sigmoid, sigmoid_prime
+from src.optimizers import Adam
+from src.utils import pixel_error
 
 # ----------- 1. Cargar datos de font -----------
 

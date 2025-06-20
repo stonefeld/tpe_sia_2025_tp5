@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 
 from src.activators import sigmoid, sigmoid_prime
-from src.autoencoders import AutoencoderMLP as Autoencoder
+from src.autoencoders import Autoencoder
 from src.optimizers import Adam
 from src.plots import plot_all_letters, plot_error_distribution, plot_latent_space
 from src.utils import pixel_error
