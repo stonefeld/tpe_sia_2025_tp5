@@ -191,46 +191,53 @@ def plot_generated_images_for_paths(model, latent_repr, generate_from_latent_fun
     plt.show()
 
 
-def plot_architecture_comparison(results, title="Comparación de Arquitecturas de Autoencoder"):
-    """Plot comparison of different architectures with their metrics."""
+def plot_architecture_comparison(results):
     fig, axs = plt.subplots(2, 2, figsize=(15, 10))
 
-    # Plot each metric
-    metrics = ["MSE", "Pixel_Error", "Max_Error"]
+    metrics = ["MSE", "Error promedio (Píxeles)", "Error máximo (Píxeles)"]
     for i, metric in enumerate(metrics):
         if metric in results:
-            axs[0, i].bar(range(len(results[metric])), results[metric])
-            axs[0, i].set_title(metric)
-            axs[0, i].set_xlabel("Arquitectura")
-            axs[0, i].set_ylabel(metric)
-            axs[0, i].set_xticks(range(len(results["arch"])))
-            axs[0, i].set_xticklabels([f"Arch {i+1}" for i in range(len(results["arch"]))], rotation=45)
+            x, y = divmod(i, 2)
+            axs[x, y].bar(range(len(results[metric])), results[metric])
+            axs[x, y].set_title(metric)
+            axs[x, y].set_xlabel("Arquitectura")
+            axs[x, y].set_ylabel(metric)
+            axs[x, y].set_xticks(range(len(results["arch"])))
+            axs[x, y].set_xticklabels([f"Arch {i + 1}" for i in range(len(results["arch"]))], rotation=45)
 
     # Show architectures
-    axs[0, 1].text(0.1, 0.9, "Arquitecturas:", fontsize=12, fontweight="bold")
+    axs[1, 1].text(0.1, 0.9, "Arquitecturas:", fontsize=12, fontweight="bold")
     for i, arch in enumerate(results["arch"]):
-        axs[0, 1].text(0.1, 0.8 - i * 0.1, f"Arch {i+1}: {arch}", fontsize=10)
-    axs[0, 1].axis("off")
+        axs[1, 1].text(0.1, 0.8 - i * 0.1, f"Arch {i + 1}: {arch}", fontsize=10)
+    axs[1, 1].axis("off")
 
-    # Plot additional metrics if available
-    additional_metrics = ["PSNR", "SSIM", "Pixel_Accuracy"]
-    metric_idx = 0
-    for metric in additional_metrics:
-        if metric in results and metric_idx < 2:
-            row, col = 1, metric_idx
-            axs[row, col].bar(range(len(results[metric])), results[metric])
-            axs[row, col].set_title(metric)
-            axs[row, col].set_xlabel("Arquitectura")
-            axs[row, col].set_ylabel(metric)
-            axs[row, col].set_xticks(range(len(results["arch"])))
-            axs[row, col].set_xticklabels([f"Arch {i+1}" for i in range(len(results["arch"]))], rotation=45)
-            metric_idx += 1
-
-    # Hide unused subplot
-    if metric_idx < 2:
-        axs[1, 1].axis("off")
-
-    fig.suptitle(title, fontsize=14)
+    fig.suptitle("Comparación de Arquitecturas de Autoencoder", fontsize=14)
     plt.tight_layout()
     save_plot(fig, "results/architecture_comparison.png")
+    plt.show()
+
+
+def plot_noise_level_comparison(results, layers, epochs, batch_size, learning_rate):
+    fig, axs = plt.subplots(2, 2, figsize=(12, 8))
+
+    metrics = ["MSE", "Error promedio (Píxeles)", "Error máximo (Píxeles)"]
+    for i, metric in enumerate(metrics):
+        if metric in results:
+            x, y = divmod(i, 2)
+            axs[x, y].plot(results["noise"], results[metric], marker="o")
+            axs[x, y].set_title(f"{metric} vs Nivel de ruido")
+            axs[x, y].set_xlabel("Ruido")
+            axs[x, y].set_ylabel(metric)
+            axs[x, y].grid(True)
+
+    # Show configuration
+    axs[1, 1].text(0.1, 0.9, f"Arquitectura: {layers}", fontsize=12, fontweight="bold")
+    axs[1, 1].text(0.1, 0.8, f"Épocas: {epochs}", fontsize=10)
+    axs[1, 1].text(0.1, 0.7, f"Batch size: {batch_size}", fontsize=10)
+    axs[1, 1].text(0.1, 0.6, f"Learning rate: {learning_rate}", fontsize=10)
+    axs[1, 1].axis("off")
+
+    fig.suptitle("Evaluación del Autoencoder con diferentes niveles de ruido", fontsize=14)
+    plt.tight_layout()
+    save_plot(fig, "results/noise_level_comparison.png")
     plt.show()

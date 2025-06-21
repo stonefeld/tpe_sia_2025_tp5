@@ -53,16 +53,8 @@ def generate_from_latent(model, z_values):
 
 
 def compute_all_metrics(original, reconstructed):
-    """Compute all available metrics for comparing original and reconstructed images."""
-    # Reshape for SSIM if needed (expects 2D images)
-    original_reshaped = original.reshape(-1, 7, 5)
-    reconstructed_reshaped = reconstructed.reshape(-1, 7, 5)
-
     metrics = {
         "MSE": compute_mse(original, reconstructed),
-        "PSNR": compute_psnr(original, reconstructed),
-        "SSIM": compute_ssim(original_reshaped, reconstructed_reshaped),
-        "Pixel_Accuracy": compute_pixel_accuracy(original, reconstructed),
     }
 
     return metrics
