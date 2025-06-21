@@ -1,11 +1,5 @@
 import numpy as np
-import sys
-import os
 
-# Agregar el directorio padre al path para importaciones
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from src.activators import sigmoid, sigmoid_prime
 from src.optimizers import SGD
 from src.utils import pixel_error
 
@@ -45,9 +39,9 @@ class Autoencoder:
     def backward(self, x, activations):
         deltas = [None] * len(self.weights)
         output = activations[-1]
-        
+
         error = np.array(x) - output
-        
+
         # Delta de la capa de salida
         deltas[-1] = error * np.array([self.tita_prime(o) for o in output])
 
@@ -91,7 +85,7 @@ class Autoencoder:
                 batch_x = x[batch_idx]
                 activations = self.forward(batch_x)
                 self.backward(batch_x, activations)
-                
+
                 total_loss += np.mean(np.square(batch_x - activations[-1]))
 
             # Corte temprano basado en error de píxeles
