@@ -1,8 +1,9 @@
-from sklearn.decomposition import PCA
 import numpy as np
+from sklearn.decomposition import PCA
 
 from ej1.src.activators import get_activation_function
 from ej1.src.optimizers import get_optimizer
+from shared.metrics import compute_mse, compute_pixel_accuracy, compute_psnr, compute_ssim
 from shared.utils import load_config
 
 
@@ -49,3 +50,42 @@ def generate_from_latent(model, z_values):
         generated_images.append(current_input[0])
 
     return np.array(generated_images)
+
+
+def compute_all_metrics(original, reconstructed):
+    """Compute all available metrics for comparing original and reconstructed images."""
+    # Reshape for SSIM if needed (expects 2D images)
+    original_reshaped = original.reshape(-1, 7, 5)
+    reconstructed_reshaped = reconstructed.reshape(-1, 7, 5)
+
+    metrics = {
+        "MSE": compute_mse(original, reconstructed),
+        "PSNR": compute_psnr(original, reconstructed),
+        "SSIM": compute_ssim(original_reshaped, reconstructed_reshaped),
+        "Pixel_Accuracy": compute_pixel_accuracy(original, reconstructed),
+    }
+
+    return metrics
+
+
+def print_metrics_summary(results):
+    """Print a summary of all metrics for the best architecture."""
+    best_idx = np.argmin(results["MSE"])
+
+    print(f"\nMejor arquitectura: {results['arch'][best_idx]}")
+
+    # Print all available metrics for the best architecture
+    for metric in results.keys():
+        if metric != "arch":
+            value = results[metric][best_idx]
+            if isinstance(value, float):
+                if metric in ["MSE", "SSIM"]:
+                    print(f"{metric}: {value:.6f}")
+                elif metric == "PSNR":
+                    print(f"{metric}: {value:.2f}")
+                else:
+                    print(f"{metric}: {value:.2f}")
+            else:
+                print(f"{metric}: {value}")
+
+    return best_idx
