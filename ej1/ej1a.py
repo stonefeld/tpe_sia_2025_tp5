@@ -1,18 +1,10 @@
 import sys
 
-from sklearn.decomposition import PCA
-
-from shared.utils import pixel_error
-
 from ej1.src.autoencoders import Autoencoder
 from ej1.src.dataset import FONT_DATA, decode_font
 from ej1.src.plots import plot_all_letters, plot_error_distribution, plot_latent_space
-from ej1.src.utils import build_params
-
-
-def pca_2d(latent_representations):
-    pca = PCA(n_components=2)
-    return pca.fit_transform(latent_representations)
+from ej1.src.utils import build_params, pca_2d
+from shared.utils import pixel_error
 
 
 def main():

@@ -5,7 +5,7 @@
   "optimizer_opts": {
     "learning_rate": 0.001
   },
-  "epochs": 10000000,
+  "epochs": 100000,
   "batch_size": 8,
-  "max_pixel_error": 0
+  "max_pixel_error": 1
 }

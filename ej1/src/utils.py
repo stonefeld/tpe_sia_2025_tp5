@@ -1,3 +1,6 @@
+from sklearn.decomposition import PCA
+import numpy as np
+
 from ej1.src.activators import get_activation_function
 from ej1.src.optimizers import get_optimizer
 from shared.utils import load_config
@@ -18,7 +21,31 @@ def build_params(config_file):
     train_params = {
         "epochs": config.get("epochs", 100000),
         "batch_size": config.get("batch_size", 8),
-        "max_pixel_error": config.get("max_pixel_error", 1),
+        "max_pixel_error": config.get("max_pixel_error", None),
     }
 
     return init_params, train_params
+
+
+def pca_2d(latent_representations):
+    pca = PCA(n_components=2)
+    return pca.fit_transform(latent_representations)
+
+
+def generate_from_latent(model, z_values):
+    """Generate images from latent space representations."""
+    generated_images = []
+
+    for z in z_values:
+        current_input = z.reshape(1, -1)
+        decoder_start = len(model.layers) // 2
+
+        for i in range(decoder_start, len(model.layers) - 1):
+            bias = np.ones((current_input.shape[0], 1))
+            input_with_bias = np.concatenate((bias, current_input), axis=1)
+            h = np.dot(input_with_bias, model.weights[i].T)
+            current_input = np.array([model.tita(h_i) for h_i in h])
+
+        generated_images.append(current_input[0])
+
+    return np.array(generated_images)
