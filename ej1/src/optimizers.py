@@ -3,6 +3,17 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 
+def get_optimizer(name, **kwargs):
+    if name == "sgd":
+        return SGD(**kwargs)
+    elif name == "momentum":
+        return Momentum(**kwargs)
+    elif name == "adam":
+        return Adam(**kwargs)
+    else:
+        raise ValueError(f"Unknown optimizer: {name}")
+
+
 class Optimizer(ABC):
     @abstractmethod
     def initialize(self, weights):

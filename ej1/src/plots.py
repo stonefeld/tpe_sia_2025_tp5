@@ -2,7 +2,7 @@ from collections import Counter
 
 import matplotlib.pyplot as plt
 
-from src.utils import save_plot
+from shared.utils import save_plot
 
 
 def plot_letter(data, index):
