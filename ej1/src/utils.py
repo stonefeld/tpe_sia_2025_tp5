@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.decomposition import PCA
 
-from ej1.src.activators import get_activation_function
-from ej1.src.optimizers import get_optimizer
+from shared.activators import get_activation_function
+from shared.optimizers import get_optimizer
 from shared.metrics import compute_mse, compute_pixel_accuracy, compute_psnr, compute_ssim
 from shared.utils import load_config
 

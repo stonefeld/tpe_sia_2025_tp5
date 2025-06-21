@@ -1,6 +1,6 @@
 import numpy as np
 
-from ej1.src.optimizers import SGD
+from shared.optimizers import SGD
 from shared.utils import pixel_error
 
 

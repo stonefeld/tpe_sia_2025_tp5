@@ -1,9 +1,9 @@
 import numpy as np
 
-from ej1.src.activators import sigmoid, sigmoid_prime
+from shared.activators import sigmoid, sigmoid_prime
 from ej1.src.autoencoders import Autoencoder
 from ej1.src.dataset import FONT_DATA, decode_font
-from ej1.src.optimizers import Adam
+from shared.optimizers import Adam
 from ej1.src.plots import plot_noise_level_comparison
 from shared.metrics import compute_mse
 from shared.utils import pixel_error

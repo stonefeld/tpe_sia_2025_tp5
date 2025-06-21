@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 
 
-class VariationalAutoEncoder:
+class VariationalAutoencoder:
     def __init__(self, encoder, decoder, optimizer, latent_dim: int):
         self.encoder = encoder  # red para obtener mu y log_var
         self.decoder = decoder  # red para decodificar desde z
