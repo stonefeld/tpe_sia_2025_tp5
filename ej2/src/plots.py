@@ -5,7 +5,7 @@ from matplotlib.offsetbox import AnnotationBbox, OffsetImage
 from shared.utils import save_plot
 
 
-def plot_generated_emojis(generated_images, image_size):
+def plot_generated_emojis(generated_images, image_size, title="Generated Emojis"):
     n_images = len(generated_images)
     n_cols = 8
     n_rows = (n_images + n_cols - 1) // n_cols
@@ -20,7 +20,7 @@ def plot_generated_emojis(generated_images, image_size):
     for i in range(n_images, len(axs)):
         axs[i].axis("off")
 
-    fig.suptitle("Emojis generados")
+    fig.suptitle(title)
     plt.tight_layout()
     save_plot(fig, "results/generated_emojis.png")
     plt.show()
@@ -75,4 +75,26 @@ def plot_latent_grid(vae, grid_size=10, range_z=2.5):
     plt.imshow(figure, cmap="gray")
     plt.title("Mapa de generación en el espacio latente")
     plt.axis("off")
+    plt.show()
+
+
+def plot_latent_space_emojis(
+    latent_representations, emoji_chars, generated_samples=None, title="Latent Space Emoji Distribution"
+):
+    fig, ax = plt.subplots(figsize=(12, 10))
+    for i, (x, y) in enumerate(latent_representations):
+        ax.scatter(x, y, s=100)
+        ax.annotate(emoji_chars[i], (x, y), xytext=(5, 5), textcoords="offset points", fontname="Apple Color Emoji")
+
+    if generated_samples is not None:
+        ax.scatter(generated_samples[:, 0], generated_samples[:, 1], c="red", s=100, marker="x", label="Generados")
+
+    ax.set_title(title)
+    ax.set_xlabel("Latent Dimension 1")
+    ax.set_ylabel("Latent Dimension 2")
+    ax.grid(True)
+    if generated_samples is not None:
+        ax.legend()
+    fig.tight_layout()
+    save_plot(fig, "results/latent_space_emojis.png")
     plt.show()
