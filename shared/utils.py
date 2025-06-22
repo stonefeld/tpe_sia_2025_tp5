@@ -1,7 +1,8 @@
-import os
 import json
+import os
 
 import numpy as np
+from sklearn.decomposition import PCA
 
 
 def pixel_error(original, reconstructed, threshold=0.5):
@@ -13,7 +14,7 @@ def load_config(config_file):
     if not os.path.exists(config_file):
         raise FileNotFoundError(f"Configuration file '{config_file}' not found.")
 
-    with open(config_file, 'r') as file:
+    with open(config_file, "r") as file:
         config = json.load(file)
 
     return config
@@ -23,3 +24,8 @@ def save_plot(fig, filepath):
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     fig.savefig(filepath, dpi=300, bbox_inches="tight")
     print(f"Plot saved to {filepath}")
+
+
+def pca_2d(latent_representations):
+    pca = PCA(n_components=2)
+    return pca.fit_transform(latent_representations)

@@ -1,9 +1,8 @@
 import numpy as np
-from sklearn.decomposition import PCA
 
 from shared.activators import get_activation_function
+from shared.metrics import compute_mse
 from shared.optimizers import get_optimizer
-from shared.metrics import compute_mse, compute_pixel_accuracy, compute_psnr, compute_ssim
 from shared.utils import load_config
 
 
@@ -28,13 +27,7 @@ def build_params(config_file):
     return init_params, train_params
 
 
-def pca_2d(latent_representations):
-    pca = PCA(n_components=2)
-    return pca.fit_transform(latent_representations)
-
-
 def generate_from_latent(model, z_values):
-    """Generate images from latent space representations."""
     generated_images = []
 
     for z in z_values:
