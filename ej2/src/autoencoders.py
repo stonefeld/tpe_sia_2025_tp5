@@ -7,7 +7,7 @@ from shared.optimizers import SGD
 
 
 class VariationalAutoencoder:
-    def __init__(self, input_dim, latent_dim, hidden_layers, learning_rate, tita, tita_prime, optimizer=SGD()):
+    def __init__(self, input_dim, latent_dim, hidden_layers, tita, tita_prime, optimizer=SGD()):
         self.latent_dim = latent_dim
         self.encoder = Autoencoder(
             layers=[input_dim] + hidden_layers + [latent_dim * 2],
@@ -82,6 +82,10 @@ class VariationalAutoencoder:
             if (epoch + 1) % 100 == 0:
                 avg_loss = total_loss / (n_samples / batch_size)
                 print(f"Epoch [{epoch + 1}/{epochs}], Loss: {avg_loss:.6f}")
+
+    def decode(self, z):
+        decoder_activations = self.decoder.forward(z)
+        return decoder_activations[-1]
 
 
 class Autoencoder:

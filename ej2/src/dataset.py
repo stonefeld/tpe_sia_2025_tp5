@@ -40,10 +40,10 @@ emojis = {
     "satisfied": "😌",
     "frowning": "😦",
     "fearful": "😨",
-    "grinning_cat": "😺",
-    "grinning_cat_with_smiling_eyes": "😸",
-    "cat_with_tears_of_joy": "😹",
-    "smiling_cat_with_heart_eyes": "😻",
+    # "grinning_cat": "😺",
+    # "grinning_cat_with_smiling_eyes": "😸",
+    # "cat_with_tears_of_joy": "😹",
+    # "smiling_cat_with_heart_eyes": "😻",
 }
 
 
@@ -121,7 +121,7 @@ def create_emoji_dataset(size=20, save_path="emoji_dataset.pkl"):
 def load_emoji_dataset(load_path="assets/emoji_dataset.pkl"):
     if not os.path.exists(load_path):
         print(f"Dataset file {load_path} not found. Creating new dataset...")
-        return create_emoji_dataset(save_path=load_path, size=32)
+        return create_emoji_dataset(save_path=load_path, size=20)
 
     with open(load_path, "rb") as f:
         dataset = pickle.load(f)
