@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.decomposition import PCA
 
 from ej1.src.plots import plot_latent_space
 from ej2.src.autoencoders import VariationalAutoencoder
@@ -7,7 +8,6 @@ from ej2.src.plots import plot_generated_emojis, plot_latent_grid, plot_latent_s
 from shared.activators import sigmoid, sigmoid_prime
 from shared.optimizers import Adam
 from shared.utils import pca_2d
-from sklearn.decomposition import PCA
 
 
 def main():
@@ -24,20 +24,20 @@ def main():
     data = np.clip(data, 0, 1).astype(np.float32)
 
     input_size = image_size * image_size
-    latent_size = 50
+    latent_size = 20
 
     # Create VAE with the new interface
     vae = VariationalAutoencoder(
         input_dim=input_size,
         latent_dim=latent_size,
-        hidden_layers=[512, 256],
+        hidden_layers=[400, 300],
         tita=sigmoid,
         tita_prime=sigmoid_prime,
         optimizer=Adam(learning_rate=0.0001),
     )
     vae.train(data, epochs=3000, batch_size=32)
 
-    _, _, _, z = vae.forward(data)
+    _, _, z, _, _ = vae.forward(data)
 
     pca = PCA(n_components=2)
     latent_2d = pca.fit_transform(z)
@@ -50,15 +50,11 @@ def main():
     generated = decoder_activations[-1]
     plot_generated_emojis(generated, image_size)
 
-    reconstructed, _, _, _ = vae.forward(data)
+    _, _, _, _, decoder_activations = vae.forward(data)
+    reconstructed = decoder_activations[-1]
     print(f"{reconstructed.shape=}, {data.shape=}")
     plot_generated_emojis(data, image_size)
     plot_generated_emojis(reconstructed, image_size)
-
-    plot_latent_grid(vae, grid_size=10, range_z=2.5)
-
-    
-
 
 
 if __name__ == "__main__":

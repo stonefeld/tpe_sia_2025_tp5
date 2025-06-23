@@ -1,5 +1,4 @@
 import copy
-from typing import Tuple
 
 import numpy as np
 
@@ -32,14 +31,13 @@ class VariationalAutoencoder:
         encoder_activations = self.encoder.forward(x)
         encoded = encoder_activations[-1]
 
-        mu = encoded[:, : self.latent_dim]
-        log_var = encoded[:, self.latent_dim :]
+        limit = self.latent_dim
+        mu = encoded[:, :limit]
+        log_var = np.clip(encoded[:, limit:], -10, 10)
         z = self.reparametrize(mu, log_var)
-
         decoder_activations = self.decoder.forward(z)
-        reconstructed = decoder_activations[-1]
 
-        return reconstructed, mu, log_var, z
+        return mu, log_var, z, encoder_activations, decoder_activations
 
     def binary_cross_entropy(self, x, x_hat):
         return -np.mean(x * np.log(x_hat + 1e-8) + (1 - x) * np.log(1 - x_hat + 1e-8))
@@ -67,53 +65,28 @@ class VariationalAutoencoder:
 
             for i in range(0, n_samples, batch_size):
                 left = i
-                right = min(left + batch_size, n_samples)
+                right = left + batch_size
                 batch_idx = idx[left:right]
                 batch_x = x[batch_idx]
 
-                # === FORWARD PASS ===
-                encoder_activations = self.encoder.forward(batch_x)
+                mu, log_var, z, encoder_activations, decoder_activations = self.forward(batch_x)
                 encoded = encoder_activations[-1]
-
-                mu = encoded[:, : self.latent_dim]
-                log_var = encoded[:, self.latent_dim :]
-
-                # Clip log_var here to prevent explosion in gradient and forward pass
-                log_var = np.clip(log_var, -10, 10)
-
-                std = np.exp(0.5 * log_var)
-                eps = np.random.normal(size=std.shape)
-                z = mu + std * eps
-
-                decoder_activations = self.decoder.forward(z)
                 reconstructed = decoder_activations[-1]
 
-                loss = self.loss_fn(batch_x, reconstructed, mu, log_var, beta=current_beta)
-                total_loss += loss
+                total_loss += self.loss_fn(batch_x, reconstructed, mu, log_var, beta=current_beta)
 
-                # === BACKWARD PASS ===
-                # Decoder backward pass. Updates decoder weights and returns gradient w.r.t. z
                 grad_z = self.decoder.backward(batch_x, decoder_activations)
 
-                # Encoder backward pass
-                # Gradient w.r.t. mu and log_var from reconstruction loss
                 grad_mu_bce = grad_z
                 grad_log_var_bce = grad_z * 0.5 * (z - mu)
 
-                # Gradient w.r.t. mu and log_var from KL divergence
                 grad_mu_kl = mu
                 grad_log_var_kl = 0.5 * (np.exp(log_var) - 1)
 
-                # Total gradient w.r.t. mu and log_var, with beta scaling for KL term
                 grad_mu = grad_mu_bce + current_beta * grad_mu_kl
                 grad_log_var = grad_log_var_bce + current_beta * grad_log_var_kl
-
-                # This is the gradient w.r.t. the output of the encoder
                 encoder_grad = np.concatenate([grad_mu, grad_log_var], axis=1)
 
-                # We need to pass a target to backward() such that error becomes encoder_grad
-                # error = output - target.
-                # So target = output - error
                 encoder_target = encoded - encoder_grad
                 self.encoder.backward(encoder_target, encoder_activations)
 
@@ -172,7 +145,7 @@ class Autoencoder:
         if self.activate_output:
             # For BCE with a sigmoid output, the gradient of the loss
             # with respect to the pre-activation is simply (output - target).
-            deltas[-1] = error
+            deltas[-1] = error * np.array([self.tita_prime(o) for o in output])
         else:
             # For a linear output layer or when passing gradient directly
             deltas[-1] = error
