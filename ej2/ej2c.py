@@ -24,18 +24,18 @@ def main():
     data = np.clip(data, 0, 1).astype(np.float32)
 
     input_size = image_size * image_size
-    latent_size = 20
+    latent_size = 50
 
     # Create VAE with the new interface
     vae = VariationalAutoencoder(
         input_dim=input_size,
         latent_dim=latent_size,
-        hidden_layers=[300, 200],
+        hidden_layers=[512, 256],
         tita=sigmoid,
         tita_prime=sigmoid_prime,
-        optimizer=Adam(learning_rate=0.001),
+        optimizer=Adam(learning_rate=0.0001),
     )
-    vae.train(data, epochs=1000, batch_size=32)
+    vae.train(data, epochs=3000, batch_size=32)
 
     _, _, _, z = vae.forward(data)
 

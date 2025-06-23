@@ -14,6 +14,7 @@ class VariationalAutoencoder:
             tita=tita,
             tita_prime=tita_prime,
             optimizer=optimizer,
+            activate_output=False,
         )
         self.decoder = Autoencoder(
             layers=[latent_dim] + hidden_layers[::-1] + [input_dim],
@@ -46,12 +47,12 @@ class VariationalAutoencoder:
     def kl_divergence(self, mu, log_var):
         return -0.5 * np.mean(np.sum(1 + log_var - mu**2 - np.exp(log_var), axis=1))
 
-    def loss_fn(self, x, x_hat, mu, log_var):
+    def loss_fn(self, x, x_hat, mu, log_var, beta=1.0):
         bce = self.binary_cross_entropy(x, x_hat)
         kl = self.kl_divergence(mu, log_var)
-        return bce + kl
+        return bce + beta * kl
 
-    def train(self, x, epochs=1000, batch_size=None):
+    def train(self, x, epochs=1000, batch_size=None, beta=0.001):
         x = np.array([sample.flatten() for sample in x])
         n_samples = x.shape[0]
         batch_size = batch_size or n_samples
@@ -60,23 +61,60 @@ class VariationalAutoencoder:
             idx = np.random.permutation(n_samples)
             total_loss = 0
 
+            # KL Annealing: start with a small beta and gradually increase it,
+            # reaching the target beta at 50% of epochs.
+            current_beta = beta * min(1.0, (epoch + 1) / (epochs * 0.5))
+
             for i in range(0, n_samples, batch_size):
                 left = i
                 right = min(left + batch_size, n_samples)
                 batch_idx = idx[left:right]
                 batch_x = x[batch_idx]
 
-                reconstructed, mu, log_var, z = self.forward(batch_x)
-                loss = self.loss_fn(batch_x, reconstructed, mu, log_var)
-                total_loss += loss
+                # === FORWARD PASS ===
+                encoder_activations = self.encoder.forward(batch_x)
+                encoded = encoder_activations[-1]
+
+                mu = encoded[:, : self.latent_dim]
+                log_var = encoded[:, self.latent_dim :]
+
+                # Clip log_var here to prevent explosion in gradient and forward pass
+                log_var = np.clip(log_var, -10, 10)
+
+                std = np.exp(0.5 * log_var)
+                eps = np.random.normal(size=std.shape)
+                z = mu + std * eps
 
                 decoder_activations = self.decoder.forward(z)
-                self.decoder.backward(batch_x, decoder_activations)
+                reconstructed = decoder_activations[-1]
 
-                encoder_activations = self.encoder.forward(batch_x)
-                kl_grad_mu = mu
-                kl_grad_log_var = 0.5 * (np.exp(log_var) - 1)
-                encoder_target = np.concatenate([kl_grad_mu, kl_grad_log_var], axis=1)
+                loss = self.loss_fn(batch_x, reconstructed, mu, log_var, beta=current_beta)
+                total_loss += loss
+
+                # === BACKWARD PASS ===
+                # Decoder backward pass. Updates decoder weights and returns gradient w.r.t. z
+                grad_z = self.decoder.backward(batch_x, decoder_activations)
+
+                # Encoder backward pass
+                # Gradient w.r.t. mu and log_var from reconstruction loss
+                grad_mu_bce = grad_z
+                grad_log_var_bce = grad_z * 0.5 * (z - mu)
+
+                # Gradient w.r.t. mu and log_var from KL divergence
+                grad_mu_kl = mu
+                grad_log_var_kl = 0.5 * (np.exp(log_var) - 1)
+
+                # Total gradient w.r.t. mu and log_var, with beta scaling for KL term
+                grad_mu = grad_mu_bce + current_beta * grad_mu_kl
+                grad_log_var = grad_log_var_bce + current_beta * grad_log_var_kl
+
+                # This is the gradient w.r.t. the output of the encoder
+                encoder_grad = np.concatenate([grad_mu, grad_log_var], axis=1)
+
+                # We need to pass a target to backward() such that error becomes encoder_grad
+                # error = output - target.
+                # So target = output - error
+                encoder_target = encoded - encoder_grad
                 self.encoder.backward(encoder_target, encoder_activations)
 
             if (epoch + 1) % 100 == 0:
@@ -89,13 +127,14 @@ class VariationalAutoencoder:
 
 
 class Autoencoder:
-    def __init__(self, layers, tita, tita_prime, optimizer=SGD()):
+    def __init__(self, layers, tita, tita_prime, optimizer=SGD(), activate_output=True):
         self.layers = layers
         self.tita = tita
         self.tita_prime = tita_prime
         self.optimizer = optimizer
         self.weights = []
         self.biases = []
+        self.activate_output = activate_output
 
         # Inicialización Xavier/Glorot
         for i in range(len(layers) - 1):
@@ -110,11 +149,14 @@ class Autoencoder:
         input = np.array(x)
         activations = [input]
 
-        for weight in self.weights:
+        for i, weight in enumerate(self.weights):
             bias = np.ones((input.shape[0], 1))
             input_with_bias = np.concatenate((bias, input), axis=1)
             h = np.dot(input_with_bias, weight.T)
-            output = np.array([self.tita(h_i) for h_i in h])
+            if i == len(self.weights) - 1 and not self.activate_output:
+                output = h
+            else:
+                output = np.array([self.tita(h_i) for h_i in h])
             activations.append(output)
             input = output
 
@@ -124,10 +166,16 @@ class Autoencoder:
         deltas = [None] * len(self.weights)
         output = activations[-1]
 
-        error = np.array(x) - output
+        error = output - np.array(x)
 
         # Delta de la capa de salida
-        deltas[-1] = error * np.array([self.tita_prime(o) for o in output])
+        if self.activate_output:
+            # For BCE with a sigmoid output, the gradient of the loss
+            # with respect to the pre-activation is simply (output - target).
+            deltas[-1] = error
+        else:
+            # For a linear output layer or when passing gradient directly
+            deltas[-1] = error
 
         # Delta de las capas ocultas
         for i in reversed(range(len(deltas) - 1)):
@@ -140,6 +188,8 @@ class Autoencoder:
             hidden_error = np.dot(next_delta, next_weights[:, 1:])
             deltas[i] = hidden_error * np.array([self.tita_prime(o) for o in layer_output])
 
+        grad_wrt_input = np.dot(deltas[0], self.weights[0][:, 1:])
+
         # Actualizar pesos
         for i in range(len(self.weights)):
             batch_size = x.shape[0]
@@ -151,6 +201,8 @@ class Autoencoder:
 
             weight_gradients /= batch_size
             self.optimizer.update(i, self.weights[i], weight_gradients)
+
+        return grad_wrt_input
 
     def train(self, x, epochs=1000, batch_size=None):
         x = np.array([sample.flatten() for sample in x])

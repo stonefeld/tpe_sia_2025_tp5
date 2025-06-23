@@ -88,4 +88,4 @@ class Adam(Optimizer):
         if self.simple:
             update = np.clip(update, -0.1, 0.1)
 
-        np.add(weights, update, out=weights)
+        np.subtract(weights, update, out=weights)
