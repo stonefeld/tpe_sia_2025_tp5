@@ -40,7 +40,7 @@ class Autoencoder:
         deltas = [None] * len(self.weights)
         output = activations[-1]
 
-        error = np.array(x) - output
+        error = output - np.array(x)
 
         # Delta de la capa de salida
         deltas[-1] = error * np.array([self.tita_prime(o) for o in output])

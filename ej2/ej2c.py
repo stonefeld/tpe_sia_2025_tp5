@@ -1,18 +1,11 @@
 import numpy as np
 from sklearn.decomposition import PCA
 
-from ej1.src.plots import plot_latent_space
 from ej2.src.autoencoders import VariationalAutoencoder
 from ej2.src.dataset import load_emoji_dataset
-from ej2.src.plots import (
-    plot_generated_emojis,
-    plot_latent_space_emojis,
-    plot_interpolation_paths_clean,
-    plot_generated_emojis_for_paths,
-)
+from ej2.src.plots import plot_generated_emojis, plot_generated_emojis_for_paths, plot_interpolation_paths_clean, plot_latent_space_emojis
 from shared.activators import sigmoid, sigmoid_prime
 from shared.optimizers import Adam
-from shared.utils import pca_2d
 
 
 def main():
@@ -29,13 +22,13 @@ def main():
     data = np.clip(data, 0, 1).astype(np.float32)
 
     input_size = image_size * image_size
-    latent_size = 20
+    latent_size = 50
 
     # Create VAE with the new interface
     vae = VariationalAutoencoder(
         input_dim=input_size,
         latent_dim=latent_size,
-        hidden_layers=[400, 300],
+        hidden_layers=[512, 256],
         tita=sigmoid,
         tita_prime=sigmoid_prime,
         optimizer=Adam(learning_rate=0.0001),
@@ -77,7 +70,6 @@ def main():
 
     _, _, _, _, decoder_activations = vae.forward(data)
     reconstructed = decoder_activations[-1]
-    print(f"{reconstructed.shape=}, {data.shape=}")
     plot_generated_emojis(data, image_size)
     plot_generated_emojis(reconstructed, image_size)
 

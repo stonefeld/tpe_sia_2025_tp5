@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.decomposition import PCA
 
 from shared.activators import get_activation_function
 from shared.metrics import compute_mse
@@ -25,6 +26,11 @@ def build_params(config_file):
     }
 
     return init_params, train_params
+
+
+def pca_2d(latent_representations):
+    pca = PCA(n_components=2)
+    return pca.fit_transform(latent_representations)
 
 
 def generate_from_latent(model, z_values):

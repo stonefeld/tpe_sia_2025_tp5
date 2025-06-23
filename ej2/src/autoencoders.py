@@ -138,17 +138,11 @@ class Autoencoder:
     def backward(self, x, activations):
         deltas = [None] * len(self.weights)
         output = activations[-1]
-
-        error = output - np.array(x)
+        deltas[-1] = output - np.array(x)
 
         # Delta de la capa de salida
         if self.activate_output:
-            # For BCE with a sigmoid output, the gradient of the loss
-            # with respect to the pre-activation is simply (output - target).
-            deltas[-1] = error * np.array([self.tita_prime(o) for o in output])
-        else:
-            # For a linear output layer or when passing gradient directly
-            deltas[-1] = error
+            deltas[-1] *= np.array([self.tita_prime(o) for o in output])
 
         # Delta de las capas ocultas
         for i in reversed(range(len(deltas) - 1)):
@@ -176,24 +170,3 @@ class Autoencoder:
             self.optimizer.update(i, self.weights[i], weight_gradients)
 
         return grad_wrt_input
-
-    def train(self, x, epochs=1000, batch_size=None):
-        x = np.array([sample.flatten() for sample in x])
-        n_samples = x.shape[0]
-        batch_size = batch_size or n_samples
-
-        for epoch in range(epochs):
-            idx = np.random.permutation(n_samples)
-            total_loss = 0
-
-            for i in range(0, n_samples, batch_size):
-                left = i
-                right = left + batch_size
-                batch_idx = idx[left:right]
-                batch_x = x[batch_idx]
-                activations = self.forward(batch_x)
-                self.backward(batch_x, activations)
-
-                total_loss += np.mean(np.square(batch_x - activations[-1]))
-
-            print(f"Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / (n_samples / batch_size):.10f}")
