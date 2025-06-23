@@ -26,7 +26,7 @@ def main():
 
         optimizer = Adam(learning_rate=0.001, layers=arch)
         model = Autoencoder(layers=arch, tita=sigmoid, tita_prime=sigmoid_prime, optimizer=optimizer)
-        model.train(images, epochs=1000, batch_size=8, max_pixel_error=None)
+        model.train(images, epochs=5000, batch_size=8, max_pixel_error=None)
 
         reconstructed = model.forward(images)[-1]
         errors = pixel_error(images, reconstructed)

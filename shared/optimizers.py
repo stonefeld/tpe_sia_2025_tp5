@@ -32,7 +32,7 @@ class SGD(Optimizer):
         pass
 
     def update(self, i, weights, weight_gradients):
-        np.add(weights, self.learning_rate * weight_gradients, out=weights)
+        np.subtract(weights, self.learning_rate * weight_gradients, out=weights)
 
 
 class Momentum(Optimizer):
@@ -47,7 +47,7 @@ class Momentum(Optimizer):
     def update(self, i, weights, weight_gradients):
         np.multiply(self.velocity[i], self.momentum, out=self.velocity[i])
         np.add(self.velocity[i], self.learning_rate * weight_gradients, out=self.velocity[i])
-        np.add(weights, self.velocity[i], out=weights)
+        np.subtract(weights, self.velocity[i], out=weights)
 
 
 class Adam(Optimizer):

@@ -16,7 +16,7 @@ def plot_letter(data, index):
     plt.show()
 
 
-def plot_all_letters(data):
+def plot_all_letters(data, threshold=False):
     n_letters = len(data)
     n_cols = 8
     n_rows = (n_letters + n_cols - 1) // n_cols
@@ -26,6 +26,8 @@ def plot_all_letters(data):
 
     for i in range(n_letters):
         letter = data[i].reshape(7, 5)
+        if threshold:
+            letter = (letter > 0.5).astype(float)
         axs[i].imshow(letter, cmap="binary")
         axs[i].axis("off")
 
@@ -240,4 +242,47 @@ def plot_noise_level_comparison(results, layers, epochs, batch_size, learning_ra
     fig.suptitle("Evaluación del Autoencoder con diferentes niveles de ruido", fontsize=14)
     plt.tight_layout()
     save_plot(fig, "results/noise_level_comparison.png")
+    plt.show()
+
+
+def plot_noise_reconstruction_comparison(noisy_images, reconstructed_images, noise_levels, letter_indices=None, threshold=False):
+    if letter_indices is None:
+        letter_indices = [1, 5, 15, 26]  # a, e, o, z
+
+    n_noise_levels = len(noise_levels)
+    n_letters = len(letter_indices)
+
+    fig, axs = plt.subplots(n_letters, n_noise_levels * 2, figsize=(4 * n_noise_levels, 3 * n_letters))
+
+    if n_letters == 1:
+        axs = axs.reshape(1, -1)
+
+    for i, letter_idx in enumerate(letter_indices):
+        for j, noise_level in enumerate(noise_levels):
+            # Plot noisy image
+            col_noisy = j * 2
+            noisy_img = noisy_images[j][letter_idx].reshape(7, 5)
+            if threshold:
+                noisy_img = (noisy_img > 0.5).astype(float)
+            axs[i, col_noisy].imshow(noisy_img, cmap="binary", vmin=0, vmax=1)
+            axs[i, col_noisy].set_title(f"Ruido {noise_level:.1f}")
+            axs[i, col_noisy].axis("off")
+
+            # Plot reconstructed image
+            col_recon = j * 2 + 1
+            recon_img = reconstructed_images[j][letter_idx].reshape(7, 5)
+            if threshold:
+                recon_img = (recon_img > 0.5).astype(float)
+            axs[i, col_recon].imshow(recon_img, cmap="binary", vmin=0, vmax=1)
+            axs[i, col_recon].set_title("Reconstrucción")
+            axs[i, col_recon].axis("off")
+
+    # Add row labels for letters
+    letter_names = ["a", "e", "o", "z"]
+    for i, letter_name in enumerate(letter_names):
+        axs[i, 0].set_ylabel(f"Letra '{letter_name}'", fontsize=12, rotation=0, ha="right", va="center")
+
+    fig.suptitle("Comparación: Imágenes con Ruido vs Reconstrucciones", fontsize=16)
+    plt.tight_layout()
+    save_plot(fig, "results/noise_reconstruction_comparison.png")
     plt.show()

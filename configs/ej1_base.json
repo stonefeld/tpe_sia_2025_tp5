@@ -1,11 +1,11 @@
 {
-  "layers": [35, 18, 8, 2, 8, 18, 35],
+  "layers": [35, 64, 32, 2, 32, 64, 35],
   "activation_function": "sigmoid",
   "optimizer": "adam",
   "optimizer_opts": {
-    "learning_rate": 0.005
+    "learning_rate": 0.01
   },
-  "epochs": 100000,
+  "epochs": 5000,
   "batch_size": 8,
   "max_pixel_error": 1
 }

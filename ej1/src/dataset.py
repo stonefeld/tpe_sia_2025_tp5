@@ -47,3 +47,18 @@ def decode_font(font_data):
         images.append(rows)
 
     return np.array(images, dtype=np.float32)
+
+
+def add_salt_and_pepper_noise(images, noise_level):
+    if noise_level == 0:
+        return images.copy()
+
+    noisy_images = images.copy()
+    n_samples, n_features = images.shape
+
+    noise_mask = np.random.random((n_samples, n_features)) < noise_level
+
+    salt_pepper = np.random.random((n_samples, n_features)) < 0.5
+    noisy_images[noise_mask] = salt_pepper[noise_mask]
+
+    return noisy_images
