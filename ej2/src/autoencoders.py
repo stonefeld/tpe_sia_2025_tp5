@@ -55,6 +55,9 @@ class VariationalAutoencoder:
         n_samples = x.shape[0]
         batch_size = batch_size or n_samples
 
+        loss_history = []
+        samples_processed = 0
+
         for epoch in range(epochs):
             idx = np.random.permutation(n_samples)
             total_loss = 0
@@ -73,7 +76,11 @@ class VariationalAutoencoder:
                 encoded = encoder_activations[-1]
                 reconstructed = decoder_activations[-1]
 
-                total_loss += self.loss_fn(batch_x, reconstructed, mu, log_var, beta=current_beta)
+                loss = self.loss_fn(batch_x, reconstructed, mu, log_var, beta=current_beta)
+                total_loss += loss
+
+                samples_processed += len(batch_x)
+                loss_history.append((samples_processed, loss))
 
                 grad_z = self.decoder.backward(batch_x, decoder_activations)
 
@@ -93,6 +100,8 @@ class VariationalAutoencoder:
             if (epoch + 1) % 100 == 0:
                 avg_loss = total_loss / (n_samples / batch_size)
                 print(f"Epoch [{epoch + 1}/{epochs}], Loss: {avg_loss:.6f}")
+
+        return loss_history
 
     def decode(self, z):
         decoder_activations = self.decoder.forward(z)

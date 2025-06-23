@@ -3,7 +3,13 @@ from sklearn.decomposition import PCA
 
 from ej2.src.autoencoders import VariationalAutoencoder
 from ej2.src.dataset import load_emoji_dataset
-from ej2.src.plots import plot_generated_emojis, plot_generated_emojis_for_paths, plot_interpolation_paths_clean, plot_latent_space_emojis
+from ej2.src.plots import (
+    plot_generated_emojis,
+    plot_generated_emojis_for_paths,
+    plot_interpolation_paths_clean,
+    plot_latent_space_emojis,
+    plot_loss_history,
+)
 from shared.activators import sigmoid, sigmoid_prime
 from shared.optimizers import Adam
 
@@ -33,7 +39,8 @@ def main():
         tita_prime=sigmoid_prime,
         optimizer=Adam(learning_rate=0.0001),
     )
-    vae.train(data, epochs=3000, batch_size=32)
+    loss_history = vae.train(data, epochs=3000, batch_size=32)
+    plot_loss_history(loss_history, title="VAE Loss During Training")
 
     _, _, z, _, _ = vae.forward(data)
 

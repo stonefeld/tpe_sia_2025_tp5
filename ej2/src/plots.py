@@ -4,6 +4,27 @@ import numpy as np
 from shared.utils import save_plot
 
 
+def plot_loss_history(loss_history, title="Loss over samples processed"):
+    if not loss_history:
+        print("Loss history is empty, skipping plot.")
+        return
+
+    samples_processed, losses = zip(*loss_history)
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    ax.plot(samples_processed, losses)
+
+    ax.set_title(title, fontsize=16)
+    ax.set_xlabel("Samples processed", fontsize=12)
+    ax.set_ylabel("Loss", fontsize=12)
+    ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+
+    plt.tight_layout()
+    save_plot(fig, "results/vae_loss_history.png")
+    plt.show()
+
+
 def plot_generated_emojis(generated_images, image_size, title="Generated Emojis"):
     n_images = len(generated_images)
     n_cols = 8
