@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.decomposition import PCA
-from scipy.spatial.distance import pdist, squareform
 
 from ej1.src.plots import plot_latent_space
 from ej2.src.autoencoders import VariationalAutoencoder
@@ -47,10 +46,30 @@ def main():
 
     pca = PCA(n_components=2)
     latent_2d = pca.fit_transform(z)
-    z_samples = np.random.normal(0, 1, size=(10, latent_size))
+
+    print("\n=== Generando emojis desde una distribución aprendida ===")
+    print(
+        "En lugar de usar N(0,1), vamos a muestrear desde una distribución normal "
+        "ajustada a la media y desviación estándar del espacio latente de los datos reales."
+    )
+
+    # Calcular la media y desviación estándar del espacio latente aprendido
+    z_mean = np.mean(z, axis=0)
+    z_std = np.std(z, axis=0)
+
+    print(f"Media aprendida (promedio de {latent_size} dims): {np.mean(z_mean):.3f}")
+    print(f"Desv. Est. aprendida (promedio de {latent_size} dims): {np.mean(z_std):.3f}")
+
+    # Generar muestras desde la distribución aprendida
+    z_samples = np.random.normal(loc=z_mean, scale=z_std, size=(10, latent_size))
     generated_latent_2d = pca.transform(z_samples)
 
-    plot_latent_space_emojis(latent_2d, characters, generated_samples=generated_latent_2d)
+    plot_latent_space_emojis(
+        latent_2d,
+        characters,
+        generated_samples=generated_latent_2d,
+        title="Espacio Latente con Muestras de Distribución Aprendida",
+    )
 
     decoder_activations = vae.decoder.forward(z_samples)
     generated = decoder_activations[-1]
