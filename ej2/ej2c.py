@@ -1,10 +1,16 @@
 import numpy as np
 from sklearn.decomposition import PCA
+from scipy.spatial.distance import pdist, squareform
 
 from ej1.src.plots import plot_latent_space
 from ej2.src.autoencoders import VariationalAutoencoder
 from ej2.src.dataset import load_emoji_dataset
-from ej2.src.plots import plot_generated_emojis, plot_latent_grid, plot_latent_space_emojis
+from ej2.src.plots import (
+    plot_generated_emojis,
+    plot_latent_space_emojis,
+    plot_interpolation_paths_clean,
+    plot_generated_emojis_for_paths,
+)
 from shared.activators import sigmoid, sigmoid_prime
 from shared.optimizers import Adam
 from shared.utils import pca_2d
@@ -55,6 +61,26 @@ def main():
     print(f"{reconstructed.shape=}, {data.shape=}")
     plot_generated_emojis(data, image_size)
     plot_generated_emojis(reconstructed, image_size)
+
+    # Gráfico de múltiples caminos de interpolación
+    print("\n=== Generando gráfico de múltiples caminos de interpolación ===")
+
+    # Gráfico 1: Múltiples caminos en el espacio latente (versión limpia)
+    plot_interpolation_paths_clean(
+        latent_2d,
+        characters,
+        title="Múltiples Caminos de Interpolación en el Espacio Latente",
+    )
+
+    # Gráfico 2: Emojis generados para los caminos de interpolación
+    print("\n=== Generando emojis para los caminos de interpolación ===")
+    plot_generated_emojis_for_paths(
+        z,
+        vae,
+        image_size,
+        characters,
+        title="Generación de Emojis para Diferentes Caminos en el Espacio Latente",
+    )
 
 
 if __name__ == "__main__":
