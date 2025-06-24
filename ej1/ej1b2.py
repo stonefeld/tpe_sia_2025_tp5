@@ -10,7 +10,7 @@ from shared.utils import pixel_error
 
 
 def main():
-    layers = [35, 32, 16, 2, 16, 32, 35]
+    layers = [35, 64, 32, 8, 32, 64, 35]
     noise_levels = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
     results = {"noise": [], "MSE": [], "Error promedio (Píxeles)": [], "Error máximo (Píxeles)": []}

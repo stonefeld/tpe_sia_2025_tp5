@@ -21,12 +21,16 @@ def main():
     results = {"arch": [], "MSE": [], "Error promedio (Píxeles)": [], "Error máximo (Píxeles)": []}
     images = decode_font(FONT_DATA)
 
+    epochs = 3000
+    batch_size = 8
+    learning_rate = 0.01
+
     for arch in architectures:
         print(f"\nEntrenando arquitectura: {arch}")
 
-        optimizer = Adam(learning_rate=0.001, layers=arch)
+        optimizer = Adam(learning_rate=learning_rate, layers=arch)
         model = Autoencoder(layers=arch, tita=sigmoid, tita_prime=sigmoid_prime, optimizer=optimizer)
-        model.train(images, epochs=5000, batch_size=8, max_pixel_error=None)
+        model.train(images, epochs=epochs, batch_size=batch_size, max_pixel_error=None)
 
         reconstructed = model.forward(images)[-1]
         errors = pixel_error(images, reconstructed)
