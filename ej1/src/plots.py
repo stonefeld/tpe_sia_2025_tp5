@@ -9,8 +9,12 @@ from shared.utils import save_plot
 def plot_letter(data, index):
     fig, ax = plt.subplots()
     letter = data[index].reshape(7, 5)
-    ax.imshow(letter, cmap="binary")
-    ax.axis("off")
+    ax.imshow(letter, cmap="gray", vmin=0, vmax=1)
+    # Add border around the plot
+    for spine in ax.spines.values():
+        spine.set_visible(True)
+        spine.set_color("black")
+        spine.set_linewidth(1)
     fig.tight_layout()
     save_plot(fig, f"results/letter_{index}.png")
     plt.show()
@@ -28,8 +32,12 @@ def plot_all_letters(data, threshold=False):
         letter = data[i].reshape(7, 5)
         if threshold:
             letter = (letter > 0.5).astype(float)
-        axs[i].imshow(letter, cmap="binary")
-        axs[i].axis("off")
+        axs[i].imshow(letter, cmap="gray", vmin=0, vmax=1)
+        # Add border around each subplot
+        for spine in axs[i].spines.values():
+            spine.set_visible(True)
+            spine.set_color("black")
+            spine.set_linewidth(1)
 
     fig.tight_layout()
     save_plot(fig, "results/letter_map.png")
@@ -79,9 +87,13 @@ def plot_interpolated_images(generated_images, alphas, title="Imágenes Generada
 
     for i in range(len(generated_images)):
         generated_img = generated_images[i].reshape(7, 5)
-        axs[i].imshow(generated_img, cmap="binary", vmin=0, vmax=1)
+        axs[i].imshow(generated_img, cmap="gray", vmin=0, vmax=1)
         axs[i].set_title(f"Paso de interpolación {i + 1}\nα = {alphas[i]:.2f}")
-        axs[i].axis("off")
+        # Add border around each subplot
+        for spine in axs[i].spines.values():
+            spine.set_visible(True)
+            spine.set_color("black")
+            spine.set_linewidth(1)
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     save_plot(fig, "results/interpolated_images.png")
@@ -182,9 +194,13 @@ def plot_generated_images_for_paths(model, latent_repr, generate_from_latent_fun
 
         for i in range(5):
             generated_img = generated_camino[i].reshape(7, 5)
-            axs[idx, i].imshow(generated_img, cmap="binary", vmin=0, vmax=1)
+            axs[idx, i].imshow(generated_img, cmap="gray", vmin=0, vmax=1)
             axs[idx, i].set_title(f"{label}\nα = {alphas_camino[i]:.2f}")
-            axs[idx, i].axis("off")
+            # Add border around each subplot
+            for spine in axs[idx, i].spines.values():
+                spine.set_visible(True)
+                spine.set_color("black")
+                spine.set_linewidth(1)
 
         axs[idx, 0].set_ylabel(label, fontsize=12, rotation=0, ha="right", va="center")
 
@@ -264,18 +280,26 @@ def plot_noise_reconstruction_comparison(noisy_images, reconstructed_images, noi
             noisy_img = noisy_images[j][letter_idx].reshape(7, 5)
             if threshold:
                 noisy_img = (noisy_img > 0.5).astype(float)
-            axs[i, col_noisy].imshow(noisy_img, cmap="binary", vmin=0, vmax=1)
+            axs[i, col_noisy].imshow(noisy_img, cmap="gray", vmin=0, vmax=1)
             axs[i, col_noisy].set_title(f"Ruido {noise_level:.1f}")
-            axs[i, col_noisy].axis("off")
+            # Add border around noisy image
+            for spine in axs[i, col_noisy].spines.values():
+                spine.set_visible(True)
+                spine.set_color("black")
+                spine.set_linewidth(1)
 
             # Plot reconstructed image
             col_recon = j * 2 + 1
             recon_img = reconstructed_images[j][letter_idx].reshape(7, 5)
             if threshold:
                 recon_img = (recon_img > 0.5).astype(float)
-            axs[i, col_recon].imshow(recon_img, cmap="binary", vmin=0, vmax=1)
+            axs[i, col_recon].imshow(recon_img, cmap="gray", vmin=0, vmax=1)
             axs[i, col_recon].set_title("Reconstrucción")
-            axs[i, col_recon].axis("off")
+            # Add border around reconstructed image
+            for spine in axs[i, col_recon].spines.values():
+                spine.set_visible(True)
+                spine.set_color("black")
+                spine.set_linewidth(1)
 
     # Add row labels for letters
     letter_names = ["a", "e", "o", "z"]
