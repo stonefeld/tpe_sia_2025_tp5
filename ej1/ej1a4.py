@@ -1,17 +1,16 @@
-import os
 import sys
 
 import numpy as np
 
 from ej1.src.autoencoders import Autoencoder
 from ej1.src.dataset import FONT_DATA, decode_font
-from ej1.src.utils import build_params, generate_from_latent
 from ej1.src.plots import (
-    plot_interpolated_images,
-    plot_latent_space_with_interpolation,
     plot_complete_latent_space_visualization,
     plot_generated_images_for_paths,
+    plot_interpolated_images,
+    plot_latent_space_with_interpolation,
 )
+from ej1.src.utils import build_params, generate_from_latent
 
 
 def main():

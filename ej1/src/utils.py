@@ -60,12 +60,10 @@ def compute_all_metrics(original, reconstructed):
 
 
 def print_metrics_summary(results):
-    """Print a summary of all metrics for the best architecture."""
     best_idx = np.argmin(results["MSE"])
 
     print(f"\nMejor arquitectura: {results['arch'][best_idx]}")
 
-    # Print all available metrics for the best architecture
     for metric in results.keys():
         if metric != "arch":
             value = results[metric][best_idx]

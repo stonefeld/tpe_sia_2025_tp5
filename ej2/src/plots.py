@@ -46,7 +46,6 @@ def plot_generated_emojis(generated_images, image_size, title="Generated Emojis"
     plt.show()
 
 
-# TODO: si no se usa volarlo
 def plot_interpolated_emojis(generated_images, alphas, image_size, title="Emojis Generados por Interpolación en Espacio Latente"):
     fig, axs = plt.subplots(1, len(generated_images), figsize=(15, 4))
     fig.suptitle(title)
@@ -62,7 +61,6 @@ def plot_interpolated_emojis(generated_images, alphas, image_size, title="Emojis
     plt.show()
 
 
-# TODO: si no se usa volarlo
 def plot_multiple_interpolation_paths(
     latent_repr_2d, emoji_chars, vae, image_size, z_original=None, title="Múltiples Caminos de Interpolación"
 ):
@@ -273,7 +271,6 @@ def plot_generated_emojis_for_paths(z_original, vae, image_size, emoji_chars, ti
     plt.show()
 
 
-# TODO: si no se usa volarlo
 def plot_latent_distribution_analysis(z, title="Análisis de la Distribución del Espacio Latente"):
     fig, axs = plt.subplots(2, 2, figsize=(15, 12))
 

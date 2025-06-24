@@ -62,8 +62,7 @@ class VariationalAutoencoder:
             idx = np.random.permutation(n_samples)
             total_loss = 0
 
-            # KL Annealing: start with a small beta and gradually increase it,
-            # reaching the target beta at 50% of epochs.
+            # KL Annealing
             current_beta = beta * min(1.0, (epoch + 1) / (epochs * 0.5))
 
             for i in range(0, n_samples, batch_size):

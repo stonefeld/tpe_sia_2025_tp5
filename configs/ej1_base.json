@@ -1,5 +1,5 @@
 {
-  "layers": [35, 32, 16, 8, 16, 32, 35],
+  "layers": [35, 32, 16, 2, 16, 32, 35],
   "activation_function": "sigmoid",
   "optimizer": "adam",
   "optimizer_opts": {

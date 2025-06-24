@@ -48,7 +48,6 @@ def main():
         all_noisy_images.append(noisy_images)
         all_reconstructed_images.append(reconstructed)
 
-    # Plot the comparison
     plot_noise_reconstruction_comparison(all_noisy_images, all_reconstructed_images, noise_levels, threshold=True)
     plot_noise_level_comparison(results, layers, epochs, batch_size, learning_rate)
 

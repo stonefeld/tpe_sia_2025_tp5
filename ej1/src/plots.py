@@ -10,7 +10,6 @@ def plot_letter(data, index):
     fig, ax = plt.subplots()
     letter = data[index].reshape(7, 5)
     ax.imshow(letter, cmap="gray", vmin=0, vmax=1)
-    # Add border around the plot
     for spine in ax.spines.values():
         spine.set_visible(True)
         spine.set_color("black")
@@ -33,7 +32,6 @@ def plot_all_letters(data, threshold=False):
         if threshold:
             letter = (letter > 0.5).astype(float)
         axs[i].imshow(letter, cmap="gray", vmin=0, vmax=1)
-        # Add border around each subplot
         for spine in axs[i].spines.values():
             spine.set_visible(True)
             spine.set_color("black")
@@ -89,7 +87,6 @@ def plot_interpolated_images(generated_images, alphas, title="Imágenes Generada
         generated_img = generated_images[i].reshape(7, 5)
         axs[i].imshow(generated_img, cmap="gray", vmin=0, vmax=1)
         axs[i].set_title(f"Paso de interpolación {i + 1}\nα = {alphas[i]:.2f}")
-        # Add border around each subplot
         for spine in axs[i].spines.values():
             spine.set_visible(True)
             spine.set_color("black")
@@ -223,7 +220,6 @@ def plot_architecture_comparison(results):
             axs[x, y].set_xticks(range(len(results["arch"])))
             axs[x, y].set_xticklabels([f"Arch {i + 1}" for i in range(len(results["arch"]))], rotation=45)
 
-    # Show architectures
     axs[1, 1].text(0.1, 0.9, "Arquitecturas:", fontsize=12, fontweight="bold")
     for i, arch in enumerate(results["arch"]):
         axs[1, 1].text(0.1, 0.8 - i * 0.1, f"Arch {i + 1}: {arch}", fontsize=10)
@@ -248,7 +244,6 @@ def plot_noise_level_comparison(results, layers, epochs, batch_size, learning_ra
             axs[x, y].set_ylabel(metric)
             axs[x, y].grid(True)
 
-    # Show configuration
     axs[1, 1].text(0.1, 0.9, f"Arquitectura: {layers}", fontsize=12, fontweight="bold")
     axs[1, 1].text(0.1, 0.8, f"Épocas: {epochs}", fontsize=10)
     axs[1, 1].text(0.1, 0.7, f"Batch size: {batch_size}", fontsize=10)
@@ -275,33 +270,28 @@ def plot_noise_reconstruction_comparison(noisy_images, reconstructed_images, noi
 
     for i, letter_idx in enumerate(letter_indices):
         for j, noise_level in enumerate(noise_levels):
-            # Plot noisy image
             col_noisy = j * 2
             noisy_img = noisy_images[j][letter_idx].reshape(7, 5)
             if threshold:
                 noisy_img = (noisy_img > 0.5).astype(float)
             axs[i, col_noisy].imshow(noisy_img, cmap="gray", vmin=0, vmax=1)
             axs[i, col_noisy].set_title(f"Ruido {noise_level:.1f}")
-            # Add border around noisy image
             for spine in axs[i, col_noisy].spines.values():
                 spine.set_visible(True)
                 spine.set_color("black")
                 spine.set_linewidth(1)
 
-            # Plot reconstructed image
             col_recon = j * 2 + 1
             recon_img = reconstructed_images[j][letter_idx].reshape(7, 5)
             if threshold:
                 recon_img = (recon_img > 0.5).astype(float)
             axs[i, col_recon].imshow(recon_img, cmap="gray", vmin=0, vmax=1)
             axs[i, col_recon].set_title("Reconstrucción")
-            # Add border around reconstructed image
             for spine in axs[i, col_recon].spines.values():
                 spine.set_visible(True)
                 spine.set_color("black")
                 spine.set_linewidth(1)
 
-    # Add row labels for letters
     letter_names = ["a", "e", "o", "z"]
     for i, letter_name in enumerate(letter_names):
         axs[i, 0].set_ylabel(f"Letra '{letter_name}'", fontsize=12, rotation=0, ha="right", va="center")

@@ -24,13 +24,11 @@ def main():
     image_size = images.shape[1]
     data = images.reshape(images.shape[0], -1)
 
-    # Ensure data is properly normalized to [0, 1]
     data = np.clip(data, 0, 1).astype(np.float32)
 
     input_size = image_size * image_size
     latent_size = 50
 
-    # Create VAE with the new interface
     vae = VariationalAutoencoder(
         input_dim=input_size,
         latent_dim=latent_size,
@@ -80,17 +78,14 @@ def main():
     plot_generated_emojis(data, image_size)
     plot_generated_emojis(reconstructed, image_size)
 
-    # Gráfico de múltiples caminos de interpolación
     print("\n=== Generando gráfico de múltiples caminos de interpolación ===")
 
-    # Gráfico 1: Múltiples caminos en el espacio latente (versión limpia)
     plot_interpolation_paths_clean(
         latent_2d,
         characters,
         title="Múltiples Caminos de Interpolación en el Espacio Latente",
     )
 
-    # Gráfico 2: Emojis generados para los caminos de interpolación
     print("\n=== Generando emojis para los caminos de interpolación ===")
     plot_generated_emojis_for_paths(
         z,

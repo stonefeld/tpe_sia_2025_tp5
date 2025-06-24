@@ -27,9 +27,9 @@ class Autoencoder:
         activations = [input]
 
         for weight in self.weights:
-            bias = np.ones((input.shape[0], 1))  # bias for each sample
-            input_with_bias = np.concatenate((bias, input), axis=1)  # bias
-            h = np.dot(input_with_bias, weight.T)  # input_with_bias: (batch_size, input_size+1), weight.T: (input_size+1, output_size)
+            bias = np.ones((input.shape[0], 1))
+            input_with_bias = np.concatenate((bias, input), axis=1)
+            h = np.dot(input_with_bias, weight.T)
             output = np.array([self.tita(h_i) for h_i in h])
             activations.append(output)
             input = output
@@ -58,7 +58,6 @@ class Autoencoder:
 
         # Actualizar pesos
         for i in range(len(self.weights)):
-            # For batch processing, we need to handle each sample in the batch
             batch_size = x.shape[0]
             weight_gradients = np.zeros_like(self.weights[i])
 
@@ -66,7 +65,6 @@ class Autoencoder:
                 layer_input = np.concatenate(([1], activations[i][b]))
                 weight_gradients += np.outer(deltas[i][b], layer_input)
 
-            # Average gradients over batch
             weight_gradients /= batch_size
             self.optimizer.update(i, self.weights[i], weight_gradients)
 
