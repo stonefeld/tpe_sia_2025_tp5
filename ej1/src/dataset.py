@@ -49,11 +49,9 @@ def decode_font(font_data):
     return np.array(images, dtype=np.float32)
 
 
-def add_gaussian_noise(images, noise_level, mean=0.0, std=1.0):
-    if noise_level == 0:
+def add_gaussian_noise(images, mean=0.0, std=0.1):
+    if std == 0:
         return images.copy()
-    noisy_images = images.copy()
-    noise = np.random.normal(mean, std, images.shape) * noise_level
-    noisy_images = noisy_images + noise
-    noisy_images = np.clip(noisy_images, 0, 1)
-    return noisy_images
+    noise = np.random.normal(mean, std, images.shape)
+    noisy_images = images + noise
+    return np.clip(noisy_images, 0, 1)

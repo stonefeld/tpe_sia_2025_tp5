@@ -5,13 +5,16 @@ from shared.utils import pixel_error
 
 
 class Autoencoder:
-    def __init__(self, layers, tita, tita_prime, optimizer=SGD()):
+    def __init__(self, layers, tita, tita_prime, optimizer=SGD(), noise_fn=None, noise_level=None):
         self.layers = layers
         self.tita = tita
         self.tita_prime = tita_prime
         self.optimizer = optimizer
         self.weights = []
         self.biases = []
+
+        self.noise_fn = noise_fn
+        self.noise_level = noise_level
 
         # Inicialización Xavier/Glorot
         for i in range(len(layers) - 1):
@@ -36,11 +39,11 @@ class Autoencoder:
 
         return activations
 
-    def backward(self, x, activations):
+    def backward(self, noisy_x, clean_x, activations):
         deltas = [None] * len(self.weights)
         output = activations[-1]
 
-        error = output - np.array(x)
+        error = output - np.array(clean_x)
 
         # Delta de la capa de salida
         deltas[-1] = error * np.array([self.tita_prime(o) for o in output])
@@ -58,7 +61,7 @@ class Autoencoder:
 
         # Actualizar pesos
         for i in range(len(self.weights)):
-            batch_size = x.shape[0]
+            batch_size = noisy_x.shape[0]
             weight_gradients = np.zeros_like(self.weights[i])
 
             for b in range(batch_size):
@@ -81,9 +84,15 @@ class Autoencoder:
                 right = left + batch_size
                 batch_idx = idx[left:right]
                 batch_x = x[batch_idx]
-                activations = self.forward(batch_x)
-                self.backward(batch_x, activations)
 
+                # Aplicamos (o no) ruido al batch
+                if self.noise_fn is not None and self.noise_level is not None:
+                    noisy_batch_x = self.noise_fn(batch_x, std=self.noise_level)
+                else:
+                    noisy_batch_x = batch_x
+
+                activations = self.forward(noisy_batch_x)
+                self.backward(noisy_batch_x, batch_x, activations)
                 total_loss += np.mean(np.square(batch_x - activations[-1]))
 
             # Corte temprano basado en error de píxeles

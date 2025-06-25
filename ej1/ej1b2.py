@@ -27,12 +27,18 @@ def main():
         print(f"\nEvaluando con ruido = {noise}")
 
         optimizer = Adam(learning_rate=learning_rate, layers=layers)
-        model = Autoencoder(layers=layers, tita=sigmoid, tita_prime=sigmoid_prime, optimizer=optimizer)
-
-        noisy_images = add_gaussian_noise(images, noise)
-        plot_all_letters(noisy_images)
+        model = Autoencoder(
+            layers=layers,
+            tita=sigmoid,
+            tita_prime=sigmoid_prime,
+            optimizer=optimizer,
+            noise_fn=add_gaussian_noise,
+            noise_level=noise,
+        )
         model.train(images, epochs=epochs, batch_size=batch_size, max_pixel_error=None)
 
+        noisy_images = add_gaussian_noise(images, std=noise)
+        # plot_all_letters(noisy_images)
         reconstructed = model.forward(noisy_images)[-1]
         errors = pixel_error(images, reconstructed)
 
@@ -48,7 +54,7 @@ def main():
         all_noisy_images.append(noisy_images)
         all_reconstructed_images.append(reconstructed)
 
-    plot_noise_reconstruction_comparison(all_noisy_images, all_reconstructed_images, noise_levels, threshold=True)
+    plot_noise_reconstruction_comparison(all_noisy_images, all_reconstructed_images, noise_levels)
     plot_noise_level_comparison(results, layers, epochs, batch_size, learning_rate)
 
 

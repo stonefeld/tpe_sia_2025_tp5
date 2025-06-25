@@ -275,7 +275,7 @@ def plot_noise_reconstruction_comparison(noisy_images, reconstructed_images, noi
             if threshold:
                 noisy_img = (noisy_img > 0.5).astype(float)
             axs[i, col_noisy].imshow(noisy_img, cmap="gray", vmin=0, vmax=1)
-            axs[i, col_noisy].set_title(f"Ruido {noise_level:.1f}")
+            axs[i, col_noisy].set_title(f"std={noise_level:.1f}")
             for spine in axs[i, col_noisy].spines.values():
                 spine.set_visible(True)
                 spine.set_color("black")
@@ -286,7 +286,6 @@ def plot_noise_reconstruction_comparison(noisy_images, reconstructed_images, noi
             if threshold:
                 recon_img = (recon_img > 0.5).astype(float)
             axs[i, col_recon].imshow(recon_img, cmap="gray", vmin=0, vmax=1)
-            axs[i, col_recon].set_title("Reconstrucción")
             for spine in axs[i, col_recon].spines.values():
                 spine.set_visible(True)
                 spine.set_color("black")
