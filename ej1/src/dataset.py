@@ -49,16 +49,11 @@ def decode_font(font_data):
     return np.array(images, dtype=np.float32)
 
 
-def add_salt_and_pepper_noise(images, noise_level):
+def add_gaussian_noise(images, noise_level, mean=0.0, std=1.0):
     if noise_level == 0:
         return images.copy()
-
     noisy_images = images.copy()
-    n_samples, n_features = images.shape
-
-    noise_mask = np.random.random((n_samples, n_features)) < noise_level
-
-    salt_pepper = np.random.random((n_samples, n_features)) < 0.5
-    noisy_images[noise_mask] = salt_pepper[noise_mask]
-
+    noise = np.random.normal(mean, std, images.shape) * noise_level
+    noisy_images = noisy_images + noise
+    noisy_images = np.clip(noisy_images, 0, 1)
     return noisy_images

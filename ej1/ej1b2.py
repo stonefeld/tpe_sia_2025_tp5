@@ -1,7 +1,7 @@
 import numpy as np
 
 from ej1.src.autoencoders import Autoencoder
-from ej1.src.dataset import FONT_DATA, add_salt_and_pepper_noise, decode_font
+from ej1.src.dataset import FONT_DATA, add_gaussian_noise, decode_font
 from ej1.src.plots import plot_all_letters, plot_noise_level_comparison, plot_noise_reconstruction_comparison
 from shared.activators import sigmoid, sigmoid_prime
 from shared.metrics import compute_mse
@@ -29,7 +29,7 @@ def main():
         optimizer = Adam(learning_rate=learning_rate, layers=layers)
         model = Autoencoder(layers=layers, tita=sigmoid, tita_prime=sigmoid_prime, optimizer=optimizer)
 
-        noisy_images = add_salt_and_pepper_noise(images, noise)
+        noisy_images = add_gaussian_noise(images, noise)
         plot_all_letters(noisy_images)
         model.train(images, epochs=epochs, batch_size=batch_size, max_pixel_error=None)
 
